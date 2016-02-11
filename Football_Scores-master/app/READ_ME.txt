@@ -1,0 +1,1 @@
+Please put the API key in the res/values/strings.xml file
