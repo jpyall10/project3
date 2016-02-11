@@ -1,11 +1,5 @@
 package google.zxing.integration.android;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -16,6 +10,14 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class IntentIntegrator {
     public static final int REQUEST_CODE = 0x0000c0de; // Only use bottom 16 bits
     private static final String TAG = IntentIntegrator.class.getSimpleName();
@@ -42,14 +44,17 @@ public class IntentIntegrator {
 // What else supports this intent?
     );
     private final Activity activity;
+    //private final Fragment fragment;
     private String title;
     private String message;
     private String buttonYes;
     private String buttonNo;
     private List<String> targetApplications;
     private final Map<String,Object> moreExtras;
+
     public IntentIntegrator(Activity activity) {
         this.activity = activity;
+        //this.fragment = activity.getFragmentManager().findFragmentById(R.id.fragment_container);
         title = DEFAULT_TITLE;
         message = DEFAULT_MESSAGE;
         buttonYes = DEFAULT_YES;
@@ -57,6 +62,9 @@ public class IntentIntegrator {
         targetApplications = TARGET_ALL_KNOWN;
         moreExtras = new HashMap<String,Object>(3);
     }
+
+
+
     public String getTitle() {
         return title;
     }
@@ -142,6 +150,7 @@ public class IntentIntegrator {
     }
     protected void startActivityForResult(Intent intent, int code) {
         activity.startActivityForResult(intent, code);
+        //fragment.startActivityForResult(intent, code);
     }
     private String findTargetAppPackage(Intent intent) {
         PackageManager pm = activity.getPackageManager();

@@ -30,7 +30,7 @@ import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
 
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     private final String LOG_TAG = this.getClass().getSimpleName();
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
@@ -43,7 +43,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
     private Button scanBtn;
-    private TextView formatTxt, contentTxt;
+    private TextView scanFormat, scanContent;
+
+
 
 
 
@@ -63,8 +65,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
         ean = (EditText) rootView.findViewById(R.id.ean);
-        formatTxt = (TextView)rootView.findViewById(R.id.scan_format);
-        contentTxt = (TextView)rootView.findViewById(R.id.scan_content);
+        scanBtn = (Button)rootView.findViewById(R.id.scan_button);
 
         ean.addTextChangedListener(new TextWatcher() {
             @Override
@@ -90,9 +91,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 }
 
                 if (!isNetworkAvailable(getActivity())){
-//                    TextView tv = (TextView)getView().findViewById(R.id.listview_listOfBooks_empty);
-//                    int message = R.string.empty_book_list_no_network;
-//                    tv.setText(message);
                     Toast toast = Toast.makeText(getActivity(),R.string.empty_book_list_no_network, Toast.LENGTH_SHORT);
                     toast.show();
                 }else {
@@ -106,7 +104,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
-        rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
+        scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // This is the callback method that the system will invoke when your button is
@@ -116,19 +114,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 // are using an external app.
                 //when you're done, remove the toast below.
 
-                IntentIntegrator scanIntegrator = new IntentIntegrator(getActivity());
+                IntentIntegrator scanIntegrator = new IntentIntegrator(getActivity()) {
+                    @Override
+                    protected void startActivityForResult(Intent intent, int code) {
+                        AddBook.this.startActivityForResult(intent, code); // REQUEST_CODE override
+                    }
+                };
                 scanIntegrator.initiateScan();
-
-//                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-//                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-//                startActivityForResult(intent, 0);
-
-//                Context context = getActivity();
-//                CharSequence text = "This button should let you scan a book for its barcode!";
-//                int duration = Toast.LENGTH_SHORT;
-//
-//                Toast toast = Toast.makeText(context, text, duration);
-//                toast.show();
             }
         });
 
@@ -150,10 +142,10 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
-        if(savedInstanceState!=null){
-            ean.setText(savedInstanceState.getString(EAN_CONTENT));
-            ean.setHint("");
-        }
+//        if(savedInstanceState!=null){
+//            ean.setText(savedInstanceState.getString(EAN_CONTENT));
+//            ean.setHint("");
+//        }
 
         return rootView;
     }
@@ -201,9 +193,15 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        try {
+            String[] authorsArr = authors.split(",");
+            ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+            ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
+        }
+        catch(Exception e)
+        {
+            Log.d(LOG_TAG, "Exception for authors split " + e.toString());
+        }
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
             new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
@@ -238,27 +236,15 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         activity.setTitle(R.string.scan);
     }
 
-//    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        if (requestCode == 0) {
-//            if (resultCode == RESULT_OK) {
-//                String contents = intent.getStringExtra("SCAN_RESULT");
-//                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-//                // Handle successful scan
-//            } else if (resultCode == RESULT_CANCELED) {
-//                // Handle cancel
-//            }
-//        }
-//    }
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         Log.d(LOG_TAG, "onActivityResult Ran");
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanningResult != null) {
-            String scanContent = scanningResult.getContents();
-            String scanFormat = scanningResult.getFormatName();
-            formatTxt.setText("FORMAT: " + scanFormat);
-            contentTxt.setText("CONTENT: " + scanContent);
-            Log.d(LOG_TAG, "Format is " + scanFormat + " and Content is " + scanContent);
-
+            Log.d(LOG_TAG, "Format is " + scanningResult.getFormatName() + " and Content is " + scanningResult.getContents());
+            ean.setText(scanningResult.getContents());
+            Toast toast = Toast.makeText(getActivity(),
+                    "Scan data received!", Toast.LENGTH_SHORT);
+            toast.show();
 
         }
         else{

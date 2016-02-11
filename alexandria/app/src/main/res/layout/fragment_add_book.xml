@@ -34,18 +34,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/scan_button"
                 android:id="@+id/scan_button"/>
-            <TextView
-                android:id="@+id/scan_format"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="true"
-                />
-            <TextView
-                android:id="@+id/scan_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="true"
-                />
 
         </LinearLayout>
 
