@@ -22,28 +22,40 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import barqsoft.footballscores.DatabaseContract;
+import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.R;
 
 /**
  * Created by yehya khaled on 3/2/2015.
  */
-public class myFetchService extends IntentService
+public class MyFetchService extends IntentService
 {
-    public static final String LOG_TAG = "myFetchService";
-    public myFetchService()
+    public static final String LOG_TAG = "MyFetchService";
+    public static final String ACTION_DATA_UPDATED =
+            "barqsoft.footballscores.ACTION_DATA_UPDATED";
+    public MyFetchService()
     {
-        super("myFetchService");
+        super("MyFetchService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent)
     {
+        Log.d(LOG_TAG, "onHandleIntent ran");
         getData("n2");
         getData("p2");
 
         return;
     }
+
+
+//    private void updateWidgets() {
+//        Context context = getContext();
+//        // Setting the package ensures that only components in our app will receive the broadcast
+//        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+//                .setPackage(context.getPackageName());
+//        context.sendBroadcast(dataUpdatedIntent);
+//    }
 
     private void getData (String timeFrame)
     {
@@ -54,7 +66,7 @@ public class myFetchService extends IntentService
 
         Uri fetch_build = Uri.parse(BASE_URL).buildUpon().
                 appendQueryParameter(QUERY_TIME_FRAME, timeFrame).build();
-        //Log.v(LOG_TAG, "The url we are looking at is: "+fetch_build.toString()); //log spam
+        Log.d(LOG_TAG, "The url we are looking at is: "+ fetch_build.toString()); //log spam
         HttpURLConnection m_connection = null;
         BufferedReader reader = null;
         String JSON_data = null;
@@ -265,6 +277,7 @@ public class myFetchService extends IntentService
             inserted_data = mContext.getContentResolver().bulkInsert(
                     DatabaseContract.BASE_CONTENT_URI,insert_data);
 
+//            updateWidgets();
             //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
         }
         catch (JSONException e)

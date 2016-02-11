@@ -1,4 +1,4 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.widget;
 
 import android.content.Intent;
 import android.widget.RemoteViewsService;

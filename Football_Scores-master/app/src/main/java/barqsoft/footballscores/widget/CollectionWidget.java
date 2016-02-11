@@ -1,4 +1,9 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.widget;
+
+/**
+ * IntentService which handles updating all Today widgets with the latest data
+ */
+
 
 import android.annotation.TargetApi;
 import android.appwidget.AppWidgetManager;
@@ -8,6 +13,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
+
+import barqsoft.footballscores.R;
 
 
 /**
