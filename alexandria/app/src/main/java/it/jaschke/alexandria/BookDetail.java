@@ -61,6 +61,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
                 bookIntent.setAction(BookService.DELETE_BOOK);
                 getActivity().startService(bookIntent);
                 getActivity().getSupportFragmentManager().popBackStack();
+                BookDetail.this.restartLoader();
             }
         });
         return rootView;
@@ -79,6 +80,10 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + bookTitle);
         shareActionProvider.setShareIntent(shareIntent);
+    }
+
+    private void restartLoader(){
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
     @Override
